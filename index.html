@@ -40,15 +40,24 @@
 #winnerField{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}#winnerField .field-label{margin:12px 0 0;grid-column:1/-1}#winnerField select{grid-column:1/-1}#winnerField .helper{grid-column:1/-1}#results li.top-rank{font-size:18px;font-weight:700;padding:18px 0}#results li.top-rank .rank-number{font-size:15px}#results{scroll-behavior:auto}
 @media(max-width:1150px){#results{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:650px){#results{grid-template-columns:1fr 1fr}.ranking{order:1}.settings{order:2}#results li.top-rank{font-size:16px}}
+
+/* Stage controls stay accessible while the settings panel is closed. */
+body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(240px,24vw,360px)}
+.settings{position:fixed;z-index:10;top:20px;bottom:100px;left:20px;width:min(380px,calc(100vw - 40px));height:auto;min-height:0;overflow-y:auto;box-shadow:0 20px 80px #000c}
+.settings-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}.settings-heading strong{font-size:20px}.settings-heading button{font-size:12px}.settings-hint{font-size:12px;color:var(--muted)}kbd{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:3px 7px;color:var(--text)}
+.race-actions{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:6;width:min(440px,calc(100vw - 32px));padding:10px;background:#101a27f5;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px #0008}.race-actions .controls,.race-actions .running-controls{position:static;transform:none;margin:0;padding:0;border:0;box-shadow:none;background:transparent;backdrop-filter:none}.race-actions .controls{grid-template-columns:100px 1fr}.race-actions button{height:48px;font-size:16px}.is-racing .controls{display:none}
+.final-results{color:var(--text);background:radial-gradient(ellipse at top,#163449,#0c141f 70%);border:1px solid #20cfee70;border-radius:22px;width:min(1100px,94vw);max-height:90dvh;padding:clamp(22px,4vw,56px);text-align:center;overflow:auto;box-shadow:0 30px 120px #000a}.final-results::backdrop{background:#02070ee8;backdrop-filter:blur(12px)}.final-eyebrow{font-size:13px;letter-spacing:4px;color:var(--cyan);margin:0 0 12px}.final-results h2{font-size:clamp(30px,5vw,58px);margin:0 0 12px}.final-standings{list-style:none;padding:0;margin:32px 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.final-standings li{background:#142333;border:1px solid #355169;border-radius:16px;padding:28px 16px;display:flex;flex-direction:column;gap:18px;min-width:0}.final-standings li:first-child{border-color:#ffd54e;background:linear-gradient(150deg,#433619,#172432);box-shadow:0 0 35px #ffd54e12}.final-standings span{font-size:28px;font-weight:700;color:var(--cyan)}.final-standings li:first-child span{color:#ffd54e}.final-standings strong{font-size:clamp(24px,4vw,48px);overflow-wrap:anywhere;line-height:1.2}.final-standings small{color:var(--muted);font-size:15px}.final-actions{display:flex;justify-content:center;gap:14px}.final-actions button{min-width:130px;min-height:52px}
+@media(max-width:1150px){.layout{grid-template-columns:1fr}.ranking{grid-column:auto}.arena{height:calc(100dvh - 180px);min-height:480px}}
+@media(max-width:650px){.settings{order:unset;top:12px;left:12px;width:calc(100vw - 24px);bottom:100px}.settings-hint{font-size:10px}.header-actions{flex-direction:row;gap:6px;flex-wrap:wrap;justify-content:flex-end}.final-standings{grid-template-columns:1fr 1fr;gap:10px;margin:22px 0}.final-standings li{padding:20px 10px;gap:12px}.final-standings span{font-size:22px}.final-standings strong{font-size:28px}.final-results{padding:24px 18px}.arena{height:calc(100dvh - 170px);min-height:460px}}
 </style>
 </head>
 <body>
   <header class="header">
     <h1><span class="brand-marble" aria-hidden="true"></span>마블 룰렛</h1>
-    <div class="header-actions"><span id="modeBadge" class="mode-badge">쇼 모드 · 연출용</span><button id="fullscreen" class="outline-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>전체 화면</button></div>
+    <div class="header-actions"><span class="settings-hint">설정 <kbd>E</kbd></span><span id="modeBadge" class="mode-badge">쇼 모드 · 연출용</span><button id="fullscreen" class="outline-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>전체 화면</button></div>
   </header>
   <main class="layout">
-    <aside class="settings panel" aria-label="추첨 설정">
+    <aside class="settings panel" id="settingsPanel" aria-label="추첨 설정" hidden><div class="settings-heading"><strong>추첨 설정</strong><button id="closeSettings" class="outline-button" aria-label="설정 닫기">닫기 · E</button></div>
       <section>
         <div class="section-title"><h2><label for="names">참가자</label></h2><span id="count" class="small-count">6개의 구슬</span></div>
         <textarea id="names" spellcheck="false" placeholder="민준&#10;서연&#10;지우" rows="6">민준
@@ -72,13 +81,11 @@
         <div id="winnerField"><label class="field-label" for="winner">미리 지정할 1등</label><select id="winner"></select><label class="field-label" for="winner2">미리 지정할 2등</label><select id="winner2"></select><label class="field-label" for="winner3">미리 지정할 3등</label><select id="winner3"></select><label class="field-label" for="winner4">미리 지정할 4등</label><select id="winner4"></select><p class="helper">미지정 등수는 실제 도착 순서로 채웁니다. 같은 이름은 입력한 구슬 수만큼 지정할 수 있어요.</p></div>
       </section>
       <p id="error" class="error" role="alert" hidden></p>
-      <div class="controls"><button id="shuffle" class="secondary-button">섞기</button><button id="start" class="primary-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg><span>경기 시작</span></button></div>
-      <div class="running-controls" id="runningControls" hidden><button id="pause" class="secondary-button">일시 정지</button><button id="reset" class="outline-button">다시 준비</button></div>
     </aside>
     <section class="arena panel" aria-label="구슬 경주 경기장">
       <div class="arena-top"><div class="status"><strong id="stateTitle">READY</strong><p id="stateSubtitle">구슬을 준비했어요</p></div><span id="marbleCount">6 MARBLES</span></div>
       <canvas id="raceCanvas" aria-label="중력과 충돌로 움직이는 참가자 구슬의 물리 경주"></canvas>
-      <div id="winnerOverlay" class="winner-overlay" hidden><span>1등</span><strong id="winnerName"></strong><p id="winnerDescription"></p><button id="replay" class="primary-button">다시 추첨</button></div>
+
       <div class="progress-track" aria-hidden="true"><div id="progress"></div></div>
     </section>
     <aside class="ranking panel" aria-label="경기 결과">
@@ -88,6 +95,10 @@
       <button id="export" class="outline-button export-button" hidden>결과 저장</button>
     </aside>
   </main>
+<div class="race-actions">      <div class="controls"><button id="shuffle" class="secondary-button">섞기</button><button id="start" class="primary-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg><span>경기 시작</span></button></div>
+      <div class="running-controls" id="runningControls" hidden><button id="pause" class="secondary-button">일시 정지</button><button id="reset" class="outline-button">다시 준비</button></div>
+</div>
+  <dialog id="winnerOverlay" class="final-results" aria-labelledby="finalTitle"><p class="final-eyebrow">ROUND COMPLETE</p><h2 id="finalTitle">최종 결과</h2><p id="winnerDescription" class="helper"></p><ol id="finalStandings" class="final-standings"></ol><div class="final-actions"><button id="closeResults" class="outline-button">경기 화면</button><button id="replay" class="primary-button">다시 추첨</button></div></dialog>
   <footer>중력 · 충돌 · 회전 · 쇼 모드에서는 지정한 1~4등 참가자를 해당 순위의 출발 위치에 배치합니다.<span>Inspired by <a href="https://lazygyu.github.io/roulette/" target="_blank" rel="noopener noreferrer">Marble Roulette</a></span></footer>
 <script>/*!
  * matter-js 0.20.0 by @liabru
@@ -341,6 +352,7 @@
   function error(message) {
     $('error').textContent = message || '';
     $('error').hidden = !message;
+    if (message) $('settingsPanel').hidden = false;
   }
   function syncNames() {
     const selected = rankFields.map(id => $(id).value || $(id).dataset.saved || '');
@@ -385,7 +397,7 @@
   }
   function resetRace() {
     generation++; state = 'ready'; elapsed = 0; race = []; recording = null;
-    $('winnerOverlay').hidden = true; $('resultMode').hidden = true;
+    if ($('winnerOverlay').open) $('winnerOverlay').close(); $('resultMode').hidden = true;
     $('results').replaceChildren(); $('emptyResults').hidden = false;
     $('emptyResults').querySelector('p').innerHTML = '경기를 시작하면<br>순위가 표시됩니다.';
     $('export').hidden = true; $('progress').style.width = '0%';
@@ -404,7 +416,9 @@
       activeShowMode = $('showMode').checked; activeMap = $('map').value;
       playbackSpeed = 20 / Number($('duration').value);
       state = 'preparing'; elapsed = 0; recording = null; race = [];
-      $('winnerOverlay').hidden = true; $('results').replaceChildren(); $('export').hidden = true;
+      if ($('winnerOverlay').open) $('winnerOverlay').close(); $('results').replaceChildren(); $('export').hidden = true;
+      $('resultMode').hidden = true;
+      $('settingsPanel').hidden = true;
       $('progress').style.width = '0%';
       $('emptyResults').hidden = false;
       $('emptyResults').querySelector('p').textContent = '첫 번째 구슬의 도착을 기다리고 있어요.';
@@ -443,13 +457,19 @@
   function finishRace() {
     state = 'finished';
     $('stateTitle').textContent = 'FINISH'; $('stateSubtitle').textContent = '모든 구슬이 도착했어요';
-    $('winnerName').textContent = race.find(m => m.rank === 1).name;
-    $('winnerDescription').textContent = activeShowMode ? '쇼 모드 · 미리 지정한 1등입니다.' : '일반 모드 · 실제 도착 순서입니다.';
-    $('winnerOverlay').hidden = true; $('export').hidden = false;
-    $('resultMode').textContent = activeShowMode ? '쇼 모드 · 지정한 등수가 반영된 결과입니다.' : '일반 모드 · 실제 도착 순서입니다.';
-    $('resultMode').hidden = false;
-    $('results').scrollTop = 0;
-    document.querySelector('.ranking').scrollIntoView({block: 'nearest', behavior: 'smooth'});
+    $('winnerDescription').textContent = activeShowMode ? '쇼 모드 · 지정한 등수가 반영된 결과입니다.' : '일반 모드 · 실제 도착 순서입니다.';
+    $('finalStandings').replaceChildren();
+    race.slice().sort((a,b)=>a.rank-b.rank).slice(0,4).forEach(m => {
+      const card = document.createElement('li');
+      const rank = document.createElement('span'); rank.textContent = `${m.rank}등`;
+      const name = document.createElement('strong'); name.textContent = m.name;
+      const time = document.createElement('small'); time.textContent = `${m.finishAt.toFixed(2)}초`;
+      card.append(rank,name,time); $('finalStandings').append(card);
+    });
+    $('export').hidden = false;
+    $('resultMode').textContent = $('winnerDescription').textContent;
+    $('resultMode').hidden = false; $('results').scrollTop = 0;
+    $('winnerOverlay').showModal();
     $('start').querySelector('span').textContent = '다시 추첨';
     setLocked(false);
   }
@@ -560,6 +580,19 @@
     draw(state === 'ready' ? (reducedMotion ? 0:timestamp/1000):physicsTime);
     requestAnimationFrame(frame);
   }
+  function toggleSettings() {
+    if ($('winnerOverlay').open) $('winnerOverlay').close();
+    $('settingsPanel').hidden = !$('settingsPanel').hidden;
+  }
+  document.addEventListener('keydown', event => {
+    if(event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return;
+    if(event.key === 'Escape') { $('settingsPanel').hidden = true; return; }
+    if(event.key.toLowerCase() === 'e' && !event.target.closest('input,textarea,select,[contenteditable="true"]')) {
+      event.preventDefault(); toggleSettings();
+    }
+  });
+  $('closeSettings').addEventListener('click',()=>{ $('settingsPanel').hidden = true; $('start').focus(); });
+  $('closeResults').addEventListener('click',()=>$('winnerOverlay').close());
   $('names').addEventListener('input',syncNames);
   $('showMode').addEventListener('change',() => {resetRace();syncMode();});
   for (const id of ['map','duration',...rankFields]) $(id).addEventListener('change',() => {resetRace();savePreferences();});
