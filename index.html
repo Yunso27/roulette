@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080d14">
-  <meta name="description" content="구슬 경주로 즐기는 마블 룰렛. 사전 고지된 쇼를 위한 1~4등 지정 모드를 지원합니다.">
-  <title>마블 룰렛 · 쇼 모드</title>
+  <meta name="description" content="구슬 경주로 즐기는 마블 룰렛.">
+  <title>마블 룰렛</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='%2320cfee'/%3E%3C/svg%3E">
   <style>:root{color-scheme:dark;--bg:#080d14;--panel:#101a27;--text:#edf4fc;--muted:#91a9c1;--line:#2b4156;--cyan:#20cfee;--radius:12px;font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-synthesis:none}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-size:16px}button,input,textarea,select{font:inherit}button,select,.switch{cursor:pointer}button{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:700;border:1px solid transparent;border-radius:8px;min-height:44px;padding:10px 15px;transition:background .15s,opacity .15s}button:hover{filter:brightness(1.12)}button:disabled{cursor:not-allowed;opacity:.4;filter:none}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.primary-button{background:var(--cyan);color:#04222d}.primary-button svg{fill:currentColor;stroke:none}.secondary-button{background:#344759;color:var(--text)}.outline-button{background:transparent;border-color:var(--line);color:var(--text)}
@@ -54,7 +54,7 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
 <body>
   <header class="header">
     <h1><span class="brand-marble" aria-hidden="true"></span>마블 룰렛</h1>
-    <div class="header-actions"><span class="settings-hint">설정 <kbd>E</kbd></span><span id="modeBadge" class="mode-badge">쇼 모드 · 연출용</span><button id="fullscreen" class="outline-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>전체 화면</button></div>
+    <div class="header-actions"><span class="settings-hint">설정 <kbd>E</kbd></span><span id="modeBadge" class="mode-badge">마불룰렛</span><button id="fullscreen" class="outline-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>전체 화면</button></div>
   </header>
   <main class="layout">
     <aside class="settings panel" id="settingsPanel" aria-label="추첨 설정" hidden><div class="settings-heading"><strong>추첨 설정</strong><button id="closeSettings" class="outline-button" aria-label="설정 닫기">닫기 · E</button></div>
@@ -76,8 +76,8 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
         <select id="duration"><option value="10">빠르게 (2×)</option><option value="20" selected>기본 (1×)</option><option value="30">천천히 (0.67×)</option><option value="45">슬로 모션 (0.44×)</option></select>
       </section>
       <section class="show-settings">
-        <div class="section-title"><h2><label for="showMode">쇼 모드</label></h2><label class="switch"><input type="checkbox" id="showMode" checked role="switch"><span aria-hidden="true"></span></label></div>
-        <p class="helper" id="modeHelp">사전 고지된 연출용 추첨</p>
+        <div class="section-title"><h2><label for="showMode">마불룰렛</label></h2><label class="switch"><input type="checkbox" id="showMode" checked role="switch"><span aria-hidden="true"></span></label></div>
+        <p class="helper" id="modeHelp">축하드립니다!</p>
         <div id="winnerField"><label class="field-label" for="winner">미리 지정할 1등</label><select id="winner"></select><label class="field-label" for="winner2">미리 지정할 2등</label><select id="winner2"></select><label class="field-label" for="winner3">미리 지정할 3등</label><select id="winner3"></select><label class="field-label" for="winner4">미리 지정할 4등</label><select id="winner4"></select><p class="helper">미지정 등수는 실제 도착 순서로 채웁니다. 같은 이름은 입력한 구슬 수만큼 지정할 수 있어요.</p></div>
       </section>
       <p id="error" class="error" role="alert" hidden></p>
@@ -99,7 +99,7 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
       <div class="running-controls" id="runningControls" hidden><button id="pause" class="secondary-button">일시 정지</button><button id="reset" class="outline-button">다시 준비</button></div>
 </div>
   <dialog id="winnerOverlay" class="final-results" aria-labelledby="finalTitle"><p class="final-eyebrow">ROUND COMPLETE</p><h2 id="finalTitle">최종 결과</h2><p id="winnerDescription" class="helper"></p><ol id="finalStandings" class="final-standings"></ol><div class="final-actions"><button id="closeResults" class="outline-button">경기 화면</button><button id="replay" class="primary-button">다시 추첨</button></div></dialog>
-  <footer>중력 · 충돌 · 회전 · 쇼 모드에서는 지정한 1~4등 참가자를 해당 순위의 출발 위치에 배치합니다.<span>Inspired by <a href="https://lazygyu.github.io/roulette/" target="_blank" rel="noopener noreferrer">Marble Roulette</a></span></footer>
+  <footer>중력 · 충돌 · 회전 · 마불룰렛에서는 지정한 1~4등 참가자를 해당 순위의 출발 위치에 배치합니다.<span>Inspired by <a href="https://lazygyu.github.io/roulette/" target="_blank" rel="noopener noreferrer">Marble Roulette</a></span></footer>
 <script>/*!
  * matter-js 0.20.0 by @liabru
  * http://brm.io/matter-js/
@@ -384,9 +384,9 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
   function syncMode() {
     const enabled = $('showMode').checked;
     $('winnerField').hidden = !enabled;
-    $('modeBadge').textContent = enabled ? '쇼 모드 · 연출용' : '일반 모드 · 물리 경주';
+    $('modeBadge').textContent = enabled ? '마불룰렛' : '일반 모드 · 물리 경주';
     $('modeBadge').style.color = enabled ? 'var(--cyan)' : 'var(--muted)';
-    $('modeHelp').textContent = enabled ? '사전 고지된 연출용 추첨' : '실제 물리 경주의 도착 순서로 순위를 정합니다.';
+    $('modeHelp').textContent = enabled ? ' 고지된 연출용 추첨' : '실제 물리 경주의 도착 순서로 순위를 정합니다.';
     savePreferences();
   }
   function setLocked(locked) {
@@ -457,7 +457,7 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
   function finishRace() {
     state = 'finished';
     $('stateTitle').textContent = 'FINISH'; $('stateSubtitle').textContent = '모든 구슬이 도착했어요';
-    $('winnerDescription').textContent = activeShowMode ? '쇼 모드 · 지정한 등수가 반영된 결과입니다.' : '일반 모드 · 실제 도착 순서입니다.';
+    $('winnerDescription').textContent = activeShowMode ? '마불룰렛' : '일반 모드 · 실제 도착 순서입니다.';
     $('finalStandings').replaceChildren();
     race.slice().sort((a,b)=>a.rank-b.rank).slice(0,4).forEach(m => {
       const card = document.createElement('li');
@@ -614,7 +614,7 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
   document.addEventListener('fullscreenchange',() => {$('fullscreen').lastChild.textContent=document.fullscreenElement?'화면 복귀':'전체 화면';resize();});
   $('export').addEventListener('click',() => {
     const escape = value => '"'+String(value).replace(/^[=+@\-\t\r]/,"'$&").replaceAll('"','""')+'"';
-    const rows = [['순위','이름','도착 시간(초)','모드'],...race.slice().sort((a,b)=>a.rank-b.rank).map(m => [m.rank,m.name,m.finishAt.toFixed(2),activeShowMode?'쇼 모드 (1~4등 지정)':'일반 모드 (물리 경주)'])];
+    const rows = [['순위','이름','도착 시간(초)','모드'],...race.slice().sort((a,b)=>a.rank-b.rank).map(m => [m.rank,m.name,m.finishAt.toFixed(2),activeShowMode?'마불룰렛 (1~4등 지정)':'일반 모드 (물리 경주)'])];
     const blob = new Blob(['\ufeff'+rows.map(row=>row.map(escape).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
     const url = URL.createObjectURL(blob), link = document.createElement('a');
     link.href=url;link.download='마블룰렛-결과.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
