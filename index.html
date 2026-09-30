@@ -443,7 +443,8 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
       recording = job.result();
       race = Physics.assignEntrants(recording, marbles, activeShowMode ? rankFields.map((id, i) => i < marbles.length ? $(id).value : '') : []);
       const rawFirstFinish = Math.min(...race.map(m => m.finishAt));
-      playbackSpeed = Math.min(playbackSpeed, rawFirstFinish / 10);
+      const targetFirstSeconds = 10 + (seed % 401) / 100;
+      playbackSpeed = Math.min(playbackSpeed, rawFirstFinish / targetFirstSeconds);
       race.forEach(m => m.finishAt /= playbackSpeed);
       countdown = 1.5; state = 'countdown'; previousTime = performance.now();
       $('stateTitle').textContent = '3'; $('stateSubtitle').textContent = '곧 출발합니다';
