@@ -337,7 +337,7 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
   let marbles = [], race = [], state = 'ready', elapsed = 0, previousTime = 0;
   let valid = true, activeShowMode = true, activeMap = 'cascade';
   let recording = null, playbackSpeed = 1, generation = 0, countdown = 0;
-  let canvasWidth = 700, canvasHeight = 800, renderScale = 1, offsetX = 0, offsetY = 0, cameraY = 0;
+  let canvasWidth = 700, canvasHeight = 800, renderScale = 1, offsetX = 0, offsetY = 0, cameraX = 350, cameraY = 260;
   const rankFields = ['winner', 'winner2', 'winner3', 'winner4'];
   const lockedFields = ['names', 'map', 'duration', 'showMode', ...rankFields, 'shuffle'];
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -403,7 +403,7 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
     $('runningControls').hidden = !locked;
   }
   function resetRace() {
-    generation++; state = 'ready'; elapsed = 0; race = []; recording = null; cameraY = 0;
+    generation++; state = 'ready'; elapsed = 0; race = []; recording = null; cameraX = 350; cameraY = 260;
     if ($('winnerOverlay').open) $('winnerOverlay').close(); $('resultMode').hidden = true;
     $('results').replaceChildren(); $('emptyResults').hidden = false;
     $('emptyResults').querySelector('p').innerHTML = '경기를 시작하면<br>순위가 표시됩니다.';
@@ -545,14 +545,22 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
   }
   function draw(time) {
     ctx.clearRect(0,0,canvasWidth,canvasHeight);
-    let targetCamera=0;
-    if(recording && ['running','paused','finished'].includes(state)) {
+    const tracking=['running','paused','finished'].includes(state);
+    const zoom=tracking ? 1.65 : 1.18;
+    const scale=renderScale*zoom;
+    let targetX=350,targetY=260;
+    let leaderId=-1;
+    if(recording && tracking) {
       const moving=race.filter(m=>!m.arrived);
-      const leader=(moving.length?moving:race).map(m=>({m,p:Physics.sample(recording,m.slot,Math.min(time,m.finishAt*playbackSpeed))})).sort((a,b)=>b.p[1]-a.p[1])[0];
-      if(leader) targetCamera=Math.max(0,Math.min(Physics.TRACK_HEIGHT-(canvasHeight-95)/renderScale,leader.p[1]-260));
+      const candidates=(moving.length?moving:race).map(m=>({m,p:Physics.sample(recording,m.slot,Math.min(time,m.finishAt*playbackSpeed))}));
+      const leader=candidates.sort((a,b)=>b.p[1]-a.p[1])[0];
+      if(leader) { targetX=leader.p[0]; targetY=leader.p[1]; leaderId=leader.m.id; }
     }
-    cameraY += (targetCamera-cameraY)*(state==='ready'?1:.08);
-    ctx.save(); ctx.translate(offsetX,offsetY-cameraY*renderScale); ctx.scale(renderScale,renderScale);
+    const ease=tracking ? .055 : .12;
+    cameraX+=(targetX-cameraX)*ease;
+    cameraY+=(targetY-cameraY)*ease;
+    const focusY=canvasHeight*.48;
+    ctx.save(); ctx.translate(canvasWidth/2-cameraX*scale,focusY-cameraY*scale); ctx.scale(scale,scale);
     drawTrack(reducedMotion ? 0 : time);
     if (state === 'ready' || state === 'preparing') {
       const positions=Physics.startingPositions(marbles.length);
@@ -570,6 +578,10 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
           ctx.strokeStyle=colors[m.id%colors.length]+'45';ctx.lineWidth=3;ctx.lineCap='round';ctx.stroke();
         }
         const [x,y,angle]=Physics.sample(recording,m.slot,physicsTime);
+        if(m.id===leaderId) {
+          ctx.beginPath();ctx.arc(x,y,18+Math.sin(time*5)*2,0,Math.PI*2);
+          ctx.strokeStyle='#ffffffbb';ctx.lineWidth=2;ctx.shadowColor=colors[m.id%colors.length];ctx.shadowBlur=14;ctx.stroke();ctx.shadowBlur=0;
+        }
         drawBall(m,x,y,9,race.length<=30,angle);
       }
       // Recently arrived marbles visibly continue beyond the checkered line.
