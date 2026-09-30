@@ -148,9 +148,9 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
   const { Engine, Bodies, Body, Composite, Events } = Matter;
   const STEP = 1000 / 120;
   const FRAME = STEP * 2;
-  const FINISH_Y = 1100;
-  const TRACK_HEIGHT = 1200;
-  const STRETCH_Y = 1.65;
+  const FINISH_Y = 1465;
+  const TRACK_HEIGHT = 1600;
+  const STRETCH_Y = 2.25;
   const stretchY = y => y < 0 ? y : 95 + (y - 95) * STRETCH_Y;
   const walls = [
     [[135,-200],[135,145],[80,205],[80,580],[230,665],[230,760]],
@@ -442,8 +442,8 @@ body{padding-bottom:92px}.layout{grid-template-columns:minmax(280px,1fr) clamp(2
       if (generation !== token) return;
       recording = job.result();
       race = Physics.assignEntrants(recording, marbles, activeShowMode ? rankFields.map((id, i) => i < marbles.length ? $(id).value : '') : []);
-      const rawLastFinish = Math.max(...race.map(m => m.finishAt));
-      playbackSpeed = Math.min(playbackSpeed, rawLastFinish / 10);
+      const rawFirstFinish = Math.min(...race.map(m => m.finishAt));
+      playbackSpeed = Math.min(playbackSpeed, rawFirstFinish / 10);
       race.forEach(m => m.finishAt /= playbackSpeed);
       countdown = 1.5; state = 'countdown'; previousTime = performance.now();
       $('stateTitle').textContent = '3'; $('stateSubtitle').textContent = '곧 출발합니다';
